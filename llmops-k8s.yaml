@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: llmops-app
+  labels:
+    app: llmops
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: llmops
+  template:
+    metadata:
+      labels:
+        app: llmops
+    spec:
+      containers:
+      - name: llmops-container
+        image: llmops-app:latest  # Use local image
+        imagePullPolicy: IfNotPresent
+        ports:
+          - containerPort: 8501
+        envFrom:
+          - secretRef:
+              name: llmops-secrets 
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: llmops-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: llmops
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8501
